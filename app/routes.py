@@ -7,6 +7,8 @@ import random
 
 import re
 
+from titlecase import titlecase
+
 TEXTPATH = 'static/texts'
 
 textfiles = [file for file in os.listdir(TEXTPATH) if file.endswith('.txt')]
@@ -28,7 +30,7 @@ def remove_punctuation(s):
 
 def prep_bandname(word):
     word = remove_punctuation(word)
-    return word.title()
+    return titlecase(word.lower())
 
 def get_bandname(texts, pattern):
     bandnames = re.findall(pattern, texts)
@@ -37,8 +39,10 @@ def get_bandname(texts, pattern):
 
 @app.route('/')
 def return_word():
-    patterns = [r"\b\w+\b",
-                r'\bThe\s+\w+s\b']
-    pattern = random.choice(patterns)
-    pattern = r'\bThe\s+\w+s\b' # Override for now
-    return render_template('index.html', bandname = get_bandname(text, pattern))
+    patterns = [r"\b(?!the)\w\w\w+\b",
+                r'\bThe\s+\w+s\b',
+                r'\bThe\s+\w+ed\b',
+                r'\bThe\s+\w+\b',
+                r'\bb\w+\s+of\s+(?!a|the|my|your|his|hers|its|our|their)\w+\b']
+    pattern = random.choices(patterns, weights=[.05, .8, .05, .05, .05])
+    return render_template('index.html', bandname = get_bandname(text, pattern[0]))
