@@ -16,6 +16,7 @@ virtualenv-clone = "==0.3.0"
 virtualenvwrapper = "==4.8.2"
 gunicorn = "*"
 flask = "*"
+flask-bootstrap = "*"
 
 [requires]
 python_version = "3.7"
