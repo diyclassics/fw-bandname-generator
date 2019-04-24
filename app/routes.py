@@ -43,6 +43,6 @@ def return_word():
                 r'\bThe\s+\w+s\b',
                 r'\bThe\s+\w+ed\b',
                 r'\bThe\s+\w+\b',
-                r'\bb\w+\s+of\s+(?!a|the|my|your|his|hers|its|our|their)\w+\b']
+                r'\b\w+\s+of\s+(?!a|the|my|your|his|hers|its|our|their)\w+\b']
     pattern = random.choices(patterns, weights=[.05, .8, .05, .05, .05])
     return render_template('index.html', bandname = get_bandname(text, pattern[0]))
