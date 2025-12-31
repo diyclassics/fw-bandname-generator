@@ -2,6 +2,8 @@
 
 A Flask web application that generates band names by extracting patterns from James Joyce's *Finnegans Wake*.
 
+Written by Patrick J. Burns, 2.1.19, updated 12.30.25.
+
 ## Features
 
 - **Pattern-based extraction**: Uses regex patterns to find band name candidates directly from the text
@@ -11,6 +13,10 @@ A Flask web application that generates band names by extracting patterns from Ja
 - **Quality filtering**: Validates names to avoid common words and boring combinations
 - **Duplicate detection**: Warns when a generated name matches an existing band from a database of 63,000+ bands
 - **Wiki ID filtering**: Excludes non-band entries from duplicate checking
+- **Named routes**: Flask routes with named endpoints for easy URL management
+- **Shareable URLs**: Each generated band name gets a unique URL for easy sharing
+- **Copy to clipboard**: Click the shareable link to copy it to your clipboard
+- **Minimalist UI**: Clean design with refresh icon and subtle interactions
 
 ## Installation
 
@@ -32,7 +38,7 @@ Run the Flask development server:
 uv run python app.py
 ```
 
-Visit http://127.0.0.1:5001/ in your browser. Refresh to generate new band names.
+Visit http://127.0.0.1:5001/ in your browser. Click the refresh icon to generate new band names, or use the shareable link to save and share specific names.
 
 ## How It Works
 
@@ -91,7 +97,15 @@ fw-bandname-generator/
 
 ## Version History
 
-### v0.2.0
+### v0.3.0 (2025-12-31)
+- Added named routes with Flask `url_for()` for maintainable URL management
+- Implemented shareable URLs via `/band?name=` endpoint for indexing band names
+- Added copy-to-clipboard functionality for easy link sharing
+- Redesigned UI with minimalist refresh icon (UXWing)
+- Fixed circular import issue in Flask app initialization
+- Configured static folder path for proper asset serving
+
+### v0.2.0 (2025-12-30)
 - Added case-insensitive pattern matching
 - Implemented capitalization layer with weighted styles
 - Enhanced validation to filter low-quality names
@@ -99,15 +113,15 @@ fw-bandname-generator/
 - Added duplicate detection with warning alerts
 - Filtered wiki IDs from bands database
 
-### v0.1.0
+### v0.1.0 (2019-02-01)
 - Initial release with basic pattern matching
 
 ## License
 
-Source text: *Finnegans Wake* by James Joyce (public domain)
-Band names database: Compiled from public sources
-Code: See LICENSE file
+Source text: *Finnegans Wake* by James Joyce (public domain)  
+Band names database: Compiled from public sources  
+Code: See LICENSE file  
 
 ## Credits
 
-Built with Flask, powered by Joyce's linguistic brilliance.
+Written by Patrick J. Burns (v0.2.0 with Claude 4.5). Built with Flask, powered by Joyce's linguistic brilliance.

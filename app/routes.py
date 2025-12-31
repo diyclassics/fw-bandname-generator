@@ -1,5 +1,5 @@
 from app import app
-from flask import Flask, render_template, flash
+from flask import render_template, request, url_for
 
 
 import os
@@ -9,57 +9,62 @@ import re
 
 from titlecase import titlecase
 
-TEXTPATH = 'static/texts'
-BANDSPATH = 'static/data/bands.txt'
+TEXTPATH = "static/texts"
+BANDSPATH = "static/data/bands.txt"
 
-textfiles = [file for file in os.listdir(TEXTPATH) if file.endswith('.txt')]
+textfiles = [file for file in os.listdir(TEXTPATH) if file.endswith(".txt")]
 
 texts = []
 
 for textfile in textfiles:
-    with open(TEXTPATH + '/' + textfile, 'r') as f:
+    with open(TEXTPATH + "/" + textfile, "r") as f:
         texts.append(f.read())
 
-text = ' '.join(texts)
-text = re.sub(r'- \n', '', text)
+text = " ".join(texts)
+text = re.sub(r"- \n", "", text)
 
-with open(BANDSPATH, 'r') as f:
+with open(BANDSPATH, "r") as f:
     existing_bands = {
-        line.strip().lower() for line in f
-        if line.strip() and not re.match(r'^Q\d+$', line.strip())
+        line.strip().lower()
+        for line in f
+        if line.strip() and not re.match(r"^Q\d+$", line.strip())
     }
 
+
 def remove_punctuation(s):
-    punctuation ="\"#$%&\'()*+,-/:;<=>@[\]^_`{|}~.?!«»—"
+    punctuation = "\"#$%&'()*+,-/:;<=>@[\]^_`{|}~.?!«»—"
     translator = str.maketrans({key: " " for key in punctuation})
     s = s.translate(translator)
     return s
 
+
 def apply_capitalization(word):
     """Apply capitalization style based on real band name distribution"""
     # 99% title case, 0.1% each for UPPER, lower, CamelCase
-    styles = ['title', 'UPPER', 'lower', 'camel']
+    styles = ["title", "UPPER", "lower", "camel"]
     weights = [0.99, 0.001, 0.001, 0.001]
     style = random.choices(styles, weights=weights)[0]
 
-    if style == 'UPPER':
+    if style == "UPPER":
         return word.upper()
-    elif style == 'lower':
+    elif style == "lower":
         return word.lower()
-    elif style == 'camel':
+    elif style == "camel":
         # CamelCase: capitalize first letter of each word, no spaces
-        return ''.join(w.capitalize() for w in word.split())
+        return "".join(w.capitalize() for w in word.split())
     else:  # title (default)
         return titlecase(word.lower())
+
 
 def prep_bandname(word):
     word = remove_punctuation(word)
     return apply_capitalization(word)
 
+
 def is_valid_bandname(name):
     """Check if band name meets basic quality criteria"""
     # Remove newlines and extra whitespace
-    name = ' '.join(name.split())
+    name = " ".join(name.split())
 
     word_count = len(name.split())
 
@@ -68,7 +73,38 @@ def is_valid_bandname(name):
         return False
 
     # Filter out names with only common/boring words
-    common_words = {'the', 'and', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'from', 'by', 'as', 'is', 'was', 'are', 'were', 'been', 'be', 'this', 'that', 'these', 'those', 'a', 'an', 'her', 'his', 'my', 'your', 'our', 'their'}
+    common_words = {
+        "the",
+        "and",
+        "of",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "with",
+        "from",
+        "by",
+        "as",
+        "is",
+        "was",
+        "are",
+        "were",
+        "been",
+        "be",
+        "this",
+        "that",
+        "these",
+        "those",
+        "a",
+        "an",
+        "her",
+        "his",
+        "my",
+        "your",
+        "our",
+        "their",
+    }
     words = [w.lower() for w in name.split()]
 
     # If all words are common, reject
@@ -76,13 +112,26 @@ def is_valid_bandname(name):
         return False
 
     # Reject if starts or ends with very common words (except "The" at start)
-    very_common = {'and', 'of', 'the', 'in', 'on', 'at', 'to', 'with', 'from', 'by', 'are', 'is'}
+    very_common = {
+        "and",
+        "of",
+        "the",
+        "in",
+        "on",
+        "at",
+        "to",
+        "with",
+        "from",
+        "by",
+        "are",
+        "is",
+    }
     if word_count > 1:
         # Don't allow ending with very common words
         if words[-1] in very_common:
             return False
         # Don't allow starting with very common words (except "the")
-        if words[0] in very_common and words[0] != 'the':
+        if words[0] in very_common and words[0] != "the":
             return False
 
     # For multi-word names, require at least one word with 4+ characters
@@ -91,10 +140,13 @@ def is_valid_bandname(name):
 
     return True
 
+
 def get_bandname(texts, pattern, max_tries=10):
     """Try to get a valid bandname, retry if needed"""
     for _ in range(max_tries):
-        bandnames = re.findall(pattern, texts, re.IGNORECASE)  # Case-insensitive matching
+        bandnames = re.findall(
+            pattern, texts, re.IGNORECASE
+        )  # Case-insensitive matching
         if not bandnames:
             return "The Rejects"  # Fallback if pattern matches nothing
         bandname = random.choice(bandnames)
@@ -104,17 +156,18 @@ def get_bandname(texts, pattern, max_tries=10):
     # Give up after max_tries, return whatever we got
     return prep_bandname(bandname) if bandnames else "The Rejects"
 
-@app.route('/')
-def return_word():
+
+@app.route("/", endpoint="index")
+def index():
     # Patterns with case-insensitive matching (results get title-cased)
     # Weights roughly match real band name distribution
     patterns = [
-        (r'\b[a-z]{4,12}\b', 0.45),                                # Single word, 45%
-        (r'\b[a-z]+\s+[a-z]+\b', 0.25),                           # Two words, 25%
-        (r'\bthe\s+\w+s\b', 0.15),                                 # The [word]s, 15%
-        (r'\bthe\s+\w+\b', 0.08),                                  # The [word], 8%
-        (r'\b[a-z]+\s+[a-z]+\s+[a-z]+\b', 0.05),                 # Three words, 5%
-        (r'\b[a-z]+\s+of\s+[a-z]+\b', 0.02),                      # [word] of [word], 2%
+        (r"\b[a-z]{4,12}\b", 0.45),  # Single word, 45%
+        (r"\b[a-z]+\s+[a-z]+\b", 0.25),  # Two words, 25%
+        (r"\bthe\s+\w+s\b", 0.15),  # The [word]s, 15%
+        (r"\bthe\s+\w+\b", 0.08),  # The [word], 8%
+        (r"\b[a-z]+\s+[a-z]+\s+[a-z]+\b", 0.05),  # Three words, 5%
+        (r"\b[a-z]+\s+of\s+[a-z]+\b", 0.02),  # [word] of [word], 2%
     ]
 
     pattern_list = [p[0] for p in patterns]
@@ -125,4 +178,21 @@ def return_word():
 
     is_duplicate = bandname.lower() in existing_bands
 
-    return render_template('index.html', bandname=bandname, is_duplicate=is_duplicate)
+    # Generate shareable URL for this band name
+    shareable_url = url_for('band', name=bandname, _external=True)
+
+    return render_template("index.html", bandname=bandname, is_duplicate=is_duplicate, shareable_url=shareable_url)
+
+
+@app.route("/band", endpoint="band")
+def band():
+    """Display a specific band name via query parameter"""
+    bandname = request.args.get('name', 'The Rejects')
+
+    # Check if it's a duplicate
+    is_duplicate = bandname.lower() in existing_bands
+
+    # Generate shareable URL for this band name
+    shareable_url = url_for('band', name=bandname, _external=True)
+
+    return render_template("index.html", bandname=bandname, is_duplicate=is_duplicate, shareable_url=shareable_url)

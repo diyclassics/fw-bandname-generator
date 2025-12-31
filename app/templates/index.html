@@ -12,6 +12,25 @@
         text-align: center;
         font-weight: bold;
     }
+    .refresh-icon {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .refresh-icon a {
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+    .refresh-icon a:hover {
+        transform: rotate(180deg);
+    }
+    .refresh-icon img {
+        width: 32px;
+        height: 32px;
+        opacity: 0.7;
+    }
+    .refresh-icon a:hover img {
+        opacity: 1;
+    }
     .warning-container {
         margin-top: 20px;
     }
@@ -20,12 +39,41 @@
         margin: 0 auto;
         text-align: center;
     }
+    .shareable-link {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .shareable-link a {
+        color: #666;
+        font-size: 14px;
+        text-decoration: none;
+        border-bottom: 1px dotted #999;
+        cursor: pointer;
+    }
+    .shareable-link a:hover {
+        color: #333;
+        border-bottom: 1px solid #333;
+    }
+    .copy-notification {
+        display: none;
+        color: #28a745;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    .copy-notification.show {
+        display: inline;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
     <div class="bandname-container">
         <h1 class="bandname-title">{{ bandname }} </h1>
+        <div class="refresh-icon">
+            <a href="{{ url_for('index') }}" title="Generate another">
+                <img src="{{ url_for('static', filename='refresh-icon.svg') }}" alt="Refresh">
+            </a>
+        </div>
         {% if is_duplicate %}
         <div class="warning-container">
             <div class="alert alert-warning warning-alert" role="alert">
@@ -33,5 +81,25 @@
             </div>
         </div>
         {% endif %}
+        <div class="shareable-link">
+            <p><small>Shareable link: <a href="{{ shareable_url }}" id="shareable-url" onclick="copyToClipboard(event)">{{ shareable_url }}</a></small></p>
+            <span class="copy-notification" id="copy-notification">Copied!</span>
+        </div>
     </div>
+
+    <script>
+        function copyToClipboard(event) {
+            event.preventDefault();
+            const url = document.getElementById('shareable-url').textContent;
+            navigator.clipboard.writeText(url).then(function() {
+                const notification = document.getElementById('copy-notification');
+                notification.classList.add('show');
+                setTimeout(function() {
+                    notification.classList.remove('show');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
 {% endblock %}
