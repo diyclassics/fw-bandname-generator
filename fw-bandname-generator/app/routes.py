@@ -35,19 +35,66 @@ def remove_punctuation(s):
     s = s.translate(translator)
     return s
 
+def apply_capitalization(word):
+    """Apply capitalization style based on real band name distribution"""
+    # 99% title case, 0.1% each for UPPER, lower, CamelCase
+    styles = ['title', 'UPPER', 'lower', 'camel']
+    weights = [0.99, 0.001, 0.001, 0.001]
+    style = random.choices(styles, weights=weights)[0]
+
+    if style == 'UPPER':
+        return word.upper()
+    elif style == 'lower':
+        return word.lower()
+    elif style == 'camel':
+        # CamelCase: capitalize first letter of each word, no spaces
+        return ''.join(w.capitalize() for w in word.split())
+    else:  # title (default)
+        return titlecase(word.lower())
+
 def prep_bandname(word):
     word = remove_punctuation(word)
-    return titlecase(word.lower())
+    return apply_capitalization(word)
 
 def is_valid_bandname(name):
     """Check if band name meets basic quality criteria"""
+    # Remove newlines and extra whitespace
+    name = ' '.join(name.split())
+
     word_count = len(name.split())
-    return 1 <= word_count <= 4 and 3 <= len(name) <= 50
+
+    # Basic length and word count requirements
+    if not (1 <= word_count <= 4 and 3 <= len(name) <= 50):
+        return False
+
+    # Filter out names with only common/boring words
+    common_words = {'the', 'and', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'from', 'by', 'as', 'is', 'was', 'are', 'were', 'been', 'be', 'this', 'that', 'these', 'those', 'a', 'an', 'her', 'his', 'my', 'your', 'our', 'their'}
+    words = [w.lower() for w in name.split()]
+
+    # If all words are common, reject
+    if all(w in common_words for w in words):
+        return False
+
+    # Reject if starts or ends with very common words (except "The" at start)
+    very_common = {'and', 'of', 'the', 'in', 'on', 'at', 'to', 'with', 'from', 'by', 'are', 'is'}
+    if word_count > 1:
+        # Don't allow ending with very common words
+        if words[-1] in very_common:
+            return False
+        # Don't allow starting with very common words (except "the")
+        if words[0] in very_common and words[0] != 'the':
+            return False
+
+    # For multi-word names, require at least one word with 4+ characters
+    if word_count > 1 and not any(len(w) >= 4 for w in words):
+        return False
+
+    return True
 
 def get_bandname(texts, pattern, max_tries=10):
     """Try to get a valid bandname, retry if needed"""
     for _ in range(max_tries):
-        bandnames = re.findall(pattern, texts)
+        bandnames = re.findall(pattern, texts, re.IGNORECASE)  # Case-insensitive matching
         if not bandnames:
             return "The Rejects"  # Fallback if pattern matches nothing
         bandname = random.choice(bandnames)
@@ -59,14 +106,15 @@ def get_bandname(texts, pattern, max_tries=10):
 
 @app.route('/')
 def return_word():
-    # Patterns with weights matching real band name distribution
+    # Patterns with case-insensitive matching (results get title-cased)
+    # Weights roughly match real band name distribution
     patterns = [
-        (r'\b[A-Z][a-z]{3,12}\b', 0.45),                           # Single word, 45%
-        (r'\b[A-Z]\w+\s+[A-Z]\w+\b', 0.23),                       # Two words, 23%
-        (r'\bThe\s+[A-Z]\w+s\b', 0.18),                            # The [Word]s, 18%
-        (r'\bThe\s+[A-Z]\w+\b', 0.08),                             # The [Word], 8%
-        (r'\b[A-Z]\w+\s+[A-Z]\w+\s+[A-Z]\w+\b', 0.04),           # Three words, 4%
-        (r'\b[A-Z]\w+\s+of\s+[A-Z]\w+\b', 0.02),                  # [Word] of [Word], 2%
+        (r'\b[a-z]{4,12}\b', 0.45),                                # Single word, 45%
+        (r'\b[a-z]+\s+[a-z]+\b', 0.25),                           # Two words, 25%
+        (r'\bthe\s+\w+s\b', 0.15),                                 # The [word]s, 15%
+        (r'\bthe\s+\w+\b', 0.08),                                  # The [word], 8%
+        (r'\b[a-z]+\s+[a-z]+\s+[a-z]+\b', 0.05),                 # Three words, 5%
+        (r'\b[a-z]+\s+of\s+[a-z]+\b', 0.02),                      # [word] of [word], 2%
     ]
 
     pattern_list = [p[0] for p in patterns]
