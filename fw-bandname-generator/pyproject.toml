@@ -1,0 +1,35 @@
+[project]
+name = "fw-bandname-generator"
+version = "0.2.0"
+description = "Flask app that uses regex patterns on Joyce's Finnegans Wake to generate bandnames"
+readme = "README.md"
+authors = [
+    { name = "Patrick J. Burns", email = "patrick@diyclassics.org" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.0",
+    "dominate>=2.9.0",
+    "flask>=3.0.0",
+    "flask-bootstrap>=3.3.7.1",
+    "gunicorn>=22.0.0",
+    "itsdangerous>=2.1.0",
+    "jinja2>=3.1.3",
+    "markupsafe>=2.1.0",
+    "titlecase>=2.4.0",
+    "visitor>=0.1.3",
+    "werkzeug>=3.0.0",
+]
+
+[project.scripts]
+fw-bandname-generator = "fw_bandname_generator:main"
+
+[build-system]
+requires = ["uv_build>=0.8.22,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.14.10",
+]
