@@ -2,8 +2,36 @@
 {% extends "bootstrap/base.html" %}
 {% block title %}FW Bandname Generator{% endblock %}
 
+{% block styles %}
+{{super()}}
+<style>
+    .bandname-container {
+        margin-top: 300px;
+    }
+    .bandname-title {
+        text-align: center;
+        font-weight: bold;
+    }
+    .warning-container {
+        margin-top: 20px;
+    }
+    .warning-alert {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <div style="margin-top: 300px;">
-        <h1 style="text-align: center; font-weight: bold;">{{ bandname }} </h1>
+    <div class="bandname-container">
+        <h1 class="bandname-title">{{ bandname }} </h1>
+        {% if is_duplicate %}
+        <div class="warning-container">
+            <div class="alert alert-warning warning-alert" role="alert">
+                <strong>Warning:</strong> This band name already exists!
+            </div>
+        </div>
+        {% endif %}
     </div>
 {% endblock %}

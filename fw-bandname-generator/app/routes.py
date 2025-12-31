@@ -10,6 +10,7 @@ import re
 from titlecase import titlecase
 
 TEXTPATH = 'static/texts'
+BANDSPATH = 'static/data/bands.txt'
 
 textfiles = [file for file in os.listdir(TEXTPATH) if file.endswith('.txt')]
 
@@ -21,6 +22,9 @@ for textfile in textfiles:
 
 text = ' '.join(texts)
 text = re.sub(r'- \n', '', text)
+
+with open(BANDSPATH, 'r') as f:
+    existing_bands = {line.strip().lower() for line in f}
 
 def remove_punctuation(s):
     punctuation ="\"#$%&\'()*+,-/:;<=>@[\]^_`{|}~.?!«»—"
@@ -45,4 +49,8 @@ def return_word():
                 r'\bThe\s+\w+\b',
                 r'\b\w+\s+of\s+(?!a|the|my|your|his|hers|its|our|their)\w+\b']
     pattern = random.choices(patterns, weights=[.05, .8, .05, .05, .05])
-    return render_template('index.html', bandname = get_bandname(text, pattern[0]))
+    bandname = get_bandname(text, pattern[0])
+
+    is_duplicate = bandname.lower() in existing_bands
+
+    return render_template('index.html', bandname=bandname, is_duplicate=is_duplicate)
