@@ -95,6 +95,15 @@ fw-bandname-generator/
 - **In-memory text loading** for fast pattern matching
 - **Set-based duplicate checking** for O(1) lookups
 
+## Changelog
+
+### 2026-01-01 - Wikidata Automation Foundation
+- Added: Wikidata SPARQL script for automated band name updates
+- Added: Comprehensive pytest test suite (8 tests, 48% coverage)
+- Added: Dev dependencies for testing and data fetching (pytest, pytest-cov, requests, tqdm)
+- Testing: Script successfully fetches 100+ band names from Wikidata endpoint
+- Testing: All tests passing with mocked HTTP responses
+
 ## Version History
 
 ### v0.3.0 (2025-12-31)
