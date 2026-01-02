@@ -17,7 +17,7 @@ class TestFetchBandsFromWikidata:
     """Test suite for fetch_bands_from_wikidata function"""
 
     def test_successful_query_returns_band_names(self):
-        """Test that successful API response returns list of band names"""
+        """Test that successful API response returns list of band names (lowercase normalized)"""
         mock_response = Mock()
         mock_response.json.return_value = {
             'results': {
@@ -38,11 +38,11 @@ class TestFetchBandsFromWikidata:
             call_args = mock_get.call_args
             assert call_args[0][0] == WIKIDATA_SPARQL_ENDPOINT
 
-            # Verify results
+            # Verify results (normalized to lowercase for deduplication)
             assert len(bands) == 3
-            assert 'The Beatles' in bands
-            assert 'Pink Floyd' in bands
-            assert 'Led Zeppelin' in bands
+            assert 'the beatles' in bands
+            assert 'pink floyd' in bands
+            assert 'led zeppelin' in bands
 
     def test_handles_missing_labels(self):
         """Test that entries without itemLabel are skipped"""
@@ -62,8 +62,8 @@ class TestFetchBandsFromWikidata:
             bands = fetch_bands_from_wikidata()
 
             assert len(bands) == 2
-            assert 'Radiohead' in bands
-            assert 'Nirvana' in bands
+            assert 'radiohead' in bands
+            assert 'nirvana' in bands
 
     def test_handles_empty_results(self):
         """Test that empty results return empty list"""
@@ -135,7 +135,7 @@ class TestFetchBandsFromWikidata:
             assert bands == []
 
     def test_filters_q_identifiers(self):
-        """Test that Q-identifiers (when label is missing) are still included"""
+        """Test that Q-identifiers (when label is missing) are still included (lowercase normalized)"""
         mock_response = Mock()
         mock_response.json.return_value = {
             'results': {
@@ -150,8 +150,8 @@ class TestFetchBandsFromWikidata:
         with patch('requests.get', return_value=mock_response):
             bands = fetch_bands_from_wikidata()
 
-            # Current implementation includes Q-identifiers
+            # Current implementation includes Q-identifiers (normalized to lowercase)
             # This matches the actual output we saw in testing
             assert len(bands) == 2
-            assert 'Q158641' in bands
-            assert 'Destroyer' in bands
+            assert 'q158641' in bands
+            assert 'destroyer' in bands
