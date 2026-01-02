@@ -97,6 +97,14 @@ fw-bandname-generator/
 
 ## Changelog
 
+### 2026-01-02 - Wikidata Full Dataset Fetching
+- Added: Pagination logic to fetch complete Wikidata dataset (103K+ bands)
+- Added: Deduplication using lowercase normalization
+- Added: Progress bar with tqdm showing batch progress and unique count
+- Added: Rate limiting (1 second between requests) for API etiquette
+- Changed: Script now fetches all bands instead of 100-record test limit
+- Testing: Successfully fetched 103,028 unique bands from Wikidata
+
 ### 2026-01-01 - Wikidata Automation Foundation
 - Added: Wikidata SPARQL script for automated band name updates
 - Added: Comprehensive pytest test suite (8 tests, 48% coverage)
