@@ -97,6 +97,23 @@ fw-bandname-generator/
 
 ## Changelog
 
+### 2026-01-04 - Database Foundation
+- Added: Database configuration with dev/prod/test environments
+- Added: User model with OAuth and email/password authentication support
+- Added: Database dependencies (flask-sqlalchemy, flask-migrate, flask-login, psycopg2-binary)
+- Changed: Configuration supports SQLite (dev) and PostgreSQL (production)
+- Infrastructure: Session security, Heroku DATABASE_URL compatibility
+
+### 2026-01-03 - TSV Format with Wikidata IDs
+- Added: TSV format (Q-ID + label) for band data with rich metadata support
+- Added: LOCAL_XXXXXX IDs for existing 71K non-Wikidata bands
+- Added: CLI options --dry-run and --output for script control
+- Changed: Converted bands.txt to TSV format (170,471 total bands)
+- Changed: Script captures both Wikidata Q-ID and English label
+- Changed: Deduplication by Q-ID instead of label text
+- Added: Backward compatibility - generates bands.txt from TSV
+- Merged: 71,105 existing + 106,382 Wikidata = 170,471 unique bands
+
 ### 2026-01-02 - Wikidata Full Dataset Fetching
 - Added: Pagination logic to fetch complete Wikidata dataset (103K+ bands)
 - Added: Deduplication using lowercase normalization
