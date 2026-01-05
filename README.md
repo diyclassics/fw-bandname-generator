@@ -97,6 +97,15 @@ fw-bandname-generator/
 
 ## Changelog
 
+### 2026-01-05 - ClaimedBandName Model & Relationships
+- Added: ClaimedBandName model for trading card claims system
+- Added: User ← many → ClaimedBandName relationship (one-to-many)
+- Added: band_name_lower unique constraint (global uniqueness across all users)
+- Added: ClaimedBandName.normalize_name() for consistent deduplication
+- Changed: User.can_claim now checks actual claimed_bands count < 5
+- Infrastructure: Cascade delete (claims removed when user deleted)
+- Infrastructure: Indexed band_name_lower for fast duplicate checking
+
 ### 2026-01-04 - Database Foundation
 - Added: Database configuration with dev/prod/test environments
 - Added: User model with OAuth and email/password authentication support
