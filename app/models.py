@@ -43,9 +43,13 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
 
-    # Relationships (will be added in Day 5)
-    # claimed_bands = db.relationship('ClaimedBandName', backref='user',
-    #                                lazy='dynamic', cascade='all, delete-orphan')
+    # Relationships
+    claimed_bands = db.relationship(
+        "ClaimedBandName",
+        backref="user",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
 
     def set_password(self, password):
         """Hash and store password"""
@@ -60,9 +64,38 @@ class User(UserMixin, db.Model):
     @property
     def can_claim(self):
         """Check if user can claim more band names (max 5)"""
-        # Will be implemented in Day 5 when ClaimedBandName relationship exists
-        # return self.claimed_bands.count() < 5
-        return True  # Placeholder for now
+        return self.claimed_bands.count() < 5
 
     def __repr__(self):
         return f"<User {self.username}>"
+
+
+class ClaimedBandName(db.Model):
+    """
+    Band name claimed by a user (trading card system).
+
+    Each band name can only be claimed once across all users.
+    Users can claim up to 5 band names total.
+    """
+
+    __tablename__ = "claimed_band_names"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
+    # Band name storage
+    band_name = db.Column(db.String(100), nullable=False)
+    band_name_lower = db.Column(
+        db.String(100), nullable=False, unique=True, index=True
+    )
+
+    # Timestamp
+    claimed_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @staticmethod
+    def normalize_name(name):
+        """Normalize band name for deduplication (lowercase, stripped)"""
+        return name.strip().lower()
+
+    def __repr__(self):
+        return f"<ClaimedBandName '{self.band_name}' by User {self.user_id}>"
