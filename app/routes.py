@@ -181,7 +181,7 @@ def index():
     is_duplicate = bandname.lower() in existing_bands
 
     # Generate shareable URL for this band name
-    shareable_url = url_for('band', name=bandname, _external=True)
+    shareable_url = url_for('main_bp.band', name=bandname, _external=True)
 
     return render_template("index.html", bandname=bandname, is_duplicate=is_duplicate, shareable_url=shareable_url)
 
@@ -195,6 +195,6 @@ def band():
     is_duplicate = bandname.lower() in existing_bands
 
     # Generate shareable URL for this band name
-    shareable_url = url_for('band', name=bandname, _external=True)
+    shareable_url = url_for('main_bp.band', name=bandname, _external=True)
 
     return render_template("index.html", bandname=bandname, is_duplicate=is_duplicate, shareable_url=shareable_url)
