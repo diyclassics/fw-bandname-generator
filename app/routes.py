@@ -1,5 +1,7 @@
-from app import app
-from flask import render_template, request, url_for
+from flask import Blueprint, render_template, request, url_for
+
+# Create main blueprint
+main_bp = Blueprint("main_bp", __name__)
 
 
 import os
@@ -157,7 +159,7 @@ def get_bandname(texts, pattern, max_tries=10):
     return prep_bandname(bandname) if bandnames else "The Rejects"
 
 
-@app.route("/", endpoint="index")
+@main_bp.route("/", endpoint="index")
 def index():
     # Patterns with case-insensitive matching (results get title-cased)
     # Weights roughly match real band name distribution
@@ -184,7 +186,7 @@ def index():
     return render_template("index.html", bandname=bandname, is_duplicate=is_duplicate, shareable_url=shareable_url)
 
 
-@app.route("/band", endpoint="band")
+@main_bp.route("/band", endpoint="band")
 def band():
     """Display a specific band name via query parameter"""
     bandname = request.args.get('name', 'The Rejects')

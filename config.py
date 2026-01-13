@@ -7,6 +7,9 @@ Supports multiple environments: development, production, testing
 import os
 from datetime import timedelta
 
+# Base directory (project root)
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 
 class Config:
     """Base configuration with common settings"""
@@ -31,7 +34,7 @@ class DevelopmentConfig(Config):
     """Development environment configuration"""
 
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///instance/app.db"
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(basedir, 'instance', 'app.db')}"
     SESSION_COOKIE_SECURE = False  # Allow HTTP in development
 
 
