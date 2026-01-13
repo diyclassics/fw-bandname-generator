@@ -43,7 +43,7 @@ def create_app(config_name=None):
     # Flask-Login setup
     login_manager = LoginManager()
     login_manager.init_app(app)
-    login_manager.login_view = "main_bp.index"  # Redirect to index if not logged in
+    login_manager.login_view = "auth_bp.login"  # Redirect to login if not logged in
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -51,8 +51,10 @@ def create_app(config_name=None):
 
     # Register blueprints
     from app.routes import main_bp
+    from app.auth_routes import auth_bp
 
     app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
 
     # Note: Database tables are created via migrations (flask db upgrade)
     # Not using db.create_all() to ensure migrations are the single source of truth
