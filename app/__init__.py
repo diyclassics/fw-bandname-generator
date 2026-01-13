@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
+from flask_migrate import Migrate
 import os
 
 from app.models import db, User
@@ -37,6 +38,7 @@ def create_app(config_name=None):
     # Initialize extensions
     Bootstrap(app)
     db.init_app(app)
+    migrate = Migrate(app, db, render_as_batch=True)
 
     # Flask-Login setup
     login_manager = LoginManager()
@@ -52,10 +54,8 @@ def create_app(config_name=None):
 
     app.register_blueprint(main_bp)
 
-    # Create database tables (in development)
-    if config_name == "development":
-        with app.app_context():
-            db.create_all()
+    # Note: Database tables are created via migrations (flask db upgrade)
+    # Not using db.create_all() to ensure migrations are the single source of truth
 
     return app
 
