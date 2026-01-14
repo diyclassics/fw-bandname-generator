@@ -49,6 +49,10 @@ def create_app(config_name=None):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
+    # OAuth setup
+    from app.auth import init_oauth
+    init_oauth(app)
+
     # Register blueprints
     from app.routes import main_bp
     from app.auth_routes import auth_bp

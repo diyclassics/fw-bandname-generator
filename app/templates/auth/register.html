@@ -1,11 +1,11 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}Login - FW Bandname Generator{% endblock %}
+{% block title %}Register - FW Bandname Generator{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
-            <h2 class="text-center" style="margin-top: 50px;">Login</h2>
+            <h2 class="text-center" style="margin-top: 50px;">Create Account</h2>
 
             <div class="panel panel-default" style="margin-top: 30px;">
                 <div class="panel-body">
@@ -23,7 +23,15 @@
                         {% endif %}
                     {% endwith %}
 
-                    <form method="POST" action="{{ url_for('auth_bp.login') }}">
+                    <form method="POST" action="{{ url_for('auth_bp.register') }}">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                   placeholder="Choose a username" required minlength="3" maxlength="80"
+                                   value="{{ username if username else '' }}">
+                            <p class="help-block">3-80 characters</p>
+                        </div>
+
                         <div class="form-group">
                             <label for="email">Email</label>
                             <input type="email" class="form-control" id="email" name="email"
@@ -34,39 +42,26 @@
                         <div class="form-group">
                             <label for="password">Password</label>
                             <input type="password" class="form-control" id="password" name="password"
-                                   placeholder="Your password" required>
+                                   placeholder="Choose a password" required minlength="8">
+                            <p class="help-block">At least 8 characters</p>
                         </div>
 
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="remember" value="1"> Remember me
-                            </label>
+                        <div class="form-group">
+                            <label for="password_confirm">Confirm Password</label>
+                            <input type="password" class="form-control" id="password_confirm" name="password_confirm"
+                                   placeholder="Confirm your password" required>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-block">
-                            Log In
+                            Create Account
                         </button>
                     </form>
-
-                    <!-- OAuth login options -->
-                    <div class="text-center" style="margin: 20px 0;">
-                        <p class="text-muted">Or sign in with</p>
-
-                        <a href="{{ url_for('auth_bp.oauth_google') }}" class="btn btn-default btn-block"
-                           style="margin-bottom: 10px;">
-                            <span style="color: #4285F4;">G</span> Sign in with Google
-                        </a>
-
-                        <a href="{{ url_for('auth_bp.oauth_github') }}" class="btn btn-default btn-block">
-                            <span style="color: #333;">&#x2387;</span> Sign in with GitHub
-                        </a>
-                    </div>
 
                     <hr>
 
                     <p class="text-center">
-                        Don't have an account?
-                        <a href="{{ url_for('auth_bp.register') }}">Create one</a>
+                        Already have an account?
+                        <a href="{{ url_for('auth_bp.login') }}">Log in</a>
                     </p>
 
                     <p class="text-center">
