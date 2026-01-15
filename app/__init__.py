@@ -56,9 +56,11 @@ def create_app(config_name=None):
     # Register blueprints
     from app.routes import main_bp
     from app.auth_routes import auth_bp
+    from app.user_routes import user_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(user_bp)
 
     # Note: Database tables are created via migrations (flask db upgrade)
     # Not using db.create_all() to ensure migrations are the single source of truth
