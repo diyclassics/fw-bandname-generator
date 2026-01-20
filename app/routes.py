@@ -163,19 +163,22 @@ def get_bandname(texts, pattern, max_tries=10):
 
 
 def is_band_duplicate(bandname):
-    """Check if band name is a real band or already claimed"""
+    """Check if band name is a real band or already claimed
+
+    Returns: (is_duplicate, is_real_band, claimed_by)
+    """
     normalized = bandname.lower().strip()
 
     # Check against real band names
     if normalized in existing_bands:
-        return True, None  # Real band, no claimer
+        return True, True, None  # Real band
 
     # Check against claimed names in database
     claim = ClaimedBandName.query.filter_by(band_name_lower=normalized).first()
     if claim:
-        return True, claim.user.username
+        return True, False, claim.user.username  # Claimed, not a real band
 
-    return False, None
+    return False, False, None
 
 
 @main_bp.route("/", endpoint="index")
@@ -198,7 +201,7 @@ def index():
     bandname = get_bandname(text, pattern)
 
     # Check if duplicate (real band or claimed)
-    is_duplicate, claimed_by = is_band_duplicate(bandname)
+    is_duplicate, is_real_band, claimed_by = is_band_duplicate(bandname)
 
     # Generate shareable URL for this band name
     shareable_url = url_for('main_bp.band', name=bandname, _external=True)
@@ -207,6 +210,7 @@ def index():
         "index.html",
         bandname=bandname,
         is_duplicate=is_duplicate,
+        is_real_band=is_real_band,
         claimed_by=claimed_by,
         shareable_url=shareable_url
     )
@@ -218,7 +222,7 @@ def band():
     bandname = request.args.get('name', 'The Rejects')
 
     # Check if duplicate (real band or claimed)
-    is_duplicate, claimed_by = is_band_duplicate(bandname)
+    is_duplicate, is_real_band, claimed_by = is_band_duplicate(bandname)
 
     # Generate shareable URL for this band name
     shareable_url = url_for('main_bp.band', name=bandname, _external=True)
@@ -227,6 +231,7 @@ def band():
         "index.html",
         bandname=bandname,
         is_duplicate=is_duplicate,
+        is_real_band=is_real_band,
         claimed_by=claimed_by,
         shareable_url=shareable_url
     )
