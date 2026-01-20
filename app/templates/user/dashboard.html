@@ -80,6 +80,13 @@
                                             <small class="text-muted">
                                                 Claimed {{ claim.claimed_at.strftime('%b %d, %Y') }}
                                             </small>
+                                            <form action="{{ url_for('user_bp.unclaim_band', claim_id=claim.id) }}"
+                                                  method="POST" style="margin-top: 10px;"
+                                                  onsubmit="return confirm('Release this band name?');">
+                                                <button type="submit" class="btn btn-xs btn-danger">
+                                                    Unclaim
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

@@ -1,4 +1,7 @@
 from flask import Blueprint, render_template, request, url_for
+from flask_login import current_user
+
+from app.models import ClaimedBandName
 
 # Create main blueprint
 main_bp = Blueprint("main_bp", __name__)
@@ -159,6 +162,22 @@ def get_bandname(texts, pattern, max_tries=10):
     return prep_bandname(bandname) if bandnames else "The Rejects"
 
 
+def is_band_duplicate(bandname):
+    """Check if band name is a real band or already claimed"""
+    normalized = bandname.lower().strip()
+
+    # Check against real band names
+    if normalized in existing_bands:
+        return True, None  # Real band, no claimer
+
+    # Check against claimed names in database
+    claim = ClaimedBandName.query.filter_by(band_name_lower=normalized).first()
+    if claim:
+        return True, claim.user.username
+
+    return False, None
+
+
 @main_bp.route("/", endpoint="index")
 def index():
     # Patterns with case-insensitive matching (results get title-cased)
@@ -178,12 +197,19 @@ def index():
 
     bandname = get_bandname(text, pattern)
 
-    is_duplicate = bandname.lower() in existing_bands
+    # Check if duplicate (real band or claimed)
+    is_duplicate, claimed_by = is_band_duplicate(bandname)
 
     # Generate shareable URL for this band name
     shareable_url = url_for('main_bp.band', name=bandname, _external=True)
 
-    return render_template("index.html", bandname=bandname, is_duplicate=is_duplicate, shareable_url=shareable_url)
+    return render_template(
+        "index.html",
+        bandname=bandname,
+        is_duplicate=is_duplicate,
+        claimed_by=claimed_by,
+        shareable_url=shareable_url
+    )
 
 
 @main_bp.route("/band", endpoint="band")
@@ -191,10 +217,16 @@ def band():
     """Display a specific band name via query parameter"""
     bandname = request.args.get('name', 'The Rejects')
 
-    # Check if it's a duplicate
-    is_duplicate = bandname.lower() in existing_bands
+    # Check if duplicate (real band or claimed)
+    is_duplicate, claimed_by = is_band_duplicate(bandname)
 
     # Generate shareable URL for this band name
     shareable_url = url_for('main_bp.band', name=bandname, _external=True)
 
-    return render_template("index.html", bandname=bandname, is_duplicate=is_duplicate, shareable_url=shareable_url)
+    return render_template(
+        "index.html",
+        bandname=bandname,
+        is_duplicate=is_duplicate,
+        claimed_by=claimed_by,
+        shareable_url=shareable_url
+    )

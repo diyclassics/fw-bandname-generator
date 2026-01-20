@@ -63,6 +63,22 @@
     .copy-notification.show {
         display: inline;
     }
+    .claim-section {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .claim-btn {
+        font-size: 16px;
+        padding: 10px 25px;
+    }
+    .claim-info {
+        font-size: 14px;
+        color: #666;
+        margin-top: 10px;
+    }
+    .claim-info a {
+        color: #337ab7;
+    }
 </style>
 {% endblock %}
 
@@ -74,6 +90,33 @@
                 <img src="{{ url_for('static', filename='refresh-icon.svg') }}" alt="Refresh">
             </a>
         </div>
+
+        <!-- Claim button section -->
+        <div class="claim-section">
+            {% if current_user.is_authenticated %}
+                {% if not is_duplicate %}
+                    {% if current_user.can_claim %}
+                        <button id="claim-btn" class="btn btn-success claim-btn" onclick="claimBand('{{ bandname }}')">
+                            Claim This Band!
+                        </button>
+                    {% else %}
+                        <p class="claim-info">
+                            You've reached max claims.
+                            <a href="{{ url_for('user_bp.dashboard') }}">Manage claims</a>
+                        </p>
+                    {% endif %}
+                {% elif claimed_by %}
+                    <p class="claim-info">Claimed by <strong>{{ claimed_by }}</strong></p>
+                {% endif %}
+            {% else %}
+                {% if not is_duplicate %}
+                    <p class="claim-info">
+                        <a href="{{ url_for('auth_bp.login') }}">Log in</a> to claim this band!
+                    </p>
+                {% endif %}
+            {% endif %}
+        </div>
+
         {% if is_duplicate %}
         <div class="warning-container">
             <div class="alert alert-warning warning-alert" role="alert">
@@ -99,6 +142,38 @@
                 }, 2000);
             }).catch(function(err) {
                 console.error('Failed to copy: ', err);
+            });
+        }
+
+        function claimBand(bandName) {
+            const btn = document.getElementById('claim-btn');
+            btn.disabled = true;
+            btn.textContent = 'Claiming...';
+
+            fetch('{{ url_for("user_bp.claim_band") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({band_name: bandName})
+            })
+            .then(response => response.json().then(data => ({status: response.status, data: data})))
+            .then(({status, data}) => {
+                if (status === 201 && data.success) {
+                    // Success - redirect to dashboard
+                    window.location.href = '{{ url_for("user_bp.dashboard") }}';
+                } else {
+                    // Error - show message and re-enable button
+                    alert('Error: ' + (data.error || 'Failed to claim band'));
+                    btn.disabled = false;
+                    btn.textContent = 'Claim This Band!';
+                }
+            })
+            .catch(function(err) {
+                console.error('Claim failed:', err);
+                alert('Failed to claim band. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Claim This Band!';
             });
         }
     </script>
