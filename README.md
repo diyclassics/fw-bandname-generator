@@ -2,7 +2,7 @@
 
 A Flask web application that generates band names by extracting patterns from James Joyce's *Finnegans Wake*.
 
-Written by Patrick J. Burns, 2.1.19, updated 12.30.25.
+Written by Patrick J. Burns, 2.1.19, updated 1.21.26.
 
 ## Features
 
@@ -17,6 +17,9 @@ Written by Patrick J. Burns, 2.1.19, updated 12.30.25.
 - **Shareable URLs**: Each generated band name gets a unique URL for easy sharing
 - **Copy to clipboard**: Click the shareable link to copy it to your clipboard
 - **Minimalist UI**: Clean design with refresh icon and subtle interactions
+- **User accounts**: Email/password and OAuth (Google, GitHub) authentication
+- **Band name claims**: Claim up to 5 generated band names as "trading cards"
+- **Public leaderboard**: See top collectors ranked by claim count
 
 ## Installation
 
@@ -140,6 +143,15 @@ fw-bandname-generator/
 
 ## Version History
 
+### v0.4.0 (2026-01-21)
+- Added user authentication (email/password + Google/GitHub OAuth)
+- Added band name claiming system (max 5 claims per user)
+- Added user dashboard showing claimed bands
+- Added public leaderboard ranking users by claim count
+- Added application factory pattern for better testability
+- Added Flask-Migrate for database migrations
+- Infrastructure: Blueprint architecture (main, auth, user routes)
+
 ### v0.3.0 (2025-12-31)
 - Added named routes with Flask `url_for()` for maintainable URL management
 - Implemented shareable URLs via `/band?name=` endpoint for indexing band names
@@ -167,4 +179,4 @@ Code: See LICENSE file
 
 ## Credits
 
-Written by Patrick J. Burns (v0.2.0 with Claude 4.5). Built with Flask, powered by Joyce's linguistic brilliance.
+Written by Patrick J. Burns (v0.2.0-0.4.0 with Claude 4.5). Built with Flask, powered by Joyce's linguistic brilliance.
