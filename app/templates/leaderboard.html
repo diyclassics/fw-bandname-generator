@@ -1,0 +1,91 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Leaderboard - FW Bandname Generator{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h2 style="margin-top: 50px; text-align: center;">Leaderboard</h2>
+            <p class="text-center text-muted" style="margin-bottom: 30px;">
+                Top band name collectors
+            </p>
+
+            {% if top_users %}
+                <div class="panel panel-default">
+                    <table class="table table-hover" style="margin-bottom: 0;">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px; text-align: center;">#</th>
+                                <th>User</th>
+                                <th style="width: 100px; text-align: center;">Claims</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user, claim_count in top_users %}
+                                <tr {% if current_user.is_authenticated and current_user.id == user.id %}class="info"{% endif %}>
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        {% if loop.index == 1 %}
+                                            <span style="font-size: 24px;">🥇</span>
+                                        {% elif loop.index == 2 %}
+                                            <span style="font-size: 24px;">🥈</span>
+                                        {% elif loop.index == 3 %}
+                                            <span style="font-size: 24px;">🥉</span>
+                                        {% else %}
+                                            <span class="text-muted">{{ loop.index }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <div style="display: flex; align-items: center;">
+                                            {% if user.avatar_url %}
+                                                <img src="{{ user.avatar_url }}" alt="Avatar"
+                                                     class="img-circle"
+                                                     style="width: 40px; height: 40px; margin-right: 12px;">
+                                            {% else %}
+                                                <div style="width: 40px; height: 40px; background: #eee;
+                                                            border-radius: 50%; margin-right: 12px;
+                                                            line-height: 40px; text-align: center;
+                                                            font-size: 18px; color: #999;">
+                                                    {{ user.username[0]|upper }}
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ user.display_name or user.username }}</strong>
+                                                <br>
+                                                <small class="text-muted">@{{ user.username }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        <span class="label label-primary" style="font-size: 14px;">
+                                            {{ claim_count }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="panel panel-default">
+                    <div class="panel-body text-center" style="padding: 60px;">
+                        <p class="text-muted" style="font-size: 18px;">
+                            No claims yet. Be the first!
+                        </p>
+                        <a href="{{ url_for('main_bp.index') }}" class="btn btn-primary btn-lg">
+                            Generate a Band Name
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Navigation -->
+            <p class="text-center" style="margin-top: 30px;">
+                <a href="{{ url_for('main_bp.index') }}">Back to Generator</a>
+                {% if current_user.is_authenticated %}
+                    | <a href="{{ url_for('user_bp.dashboard') }}">My Dashboard</a>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

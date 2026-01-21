@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, url_for
 from flask_login import current_user
+from sqlalchemy import func
 
-from app.models import ClaimedBandName
+from app.models import db, User, ClaimedBandName
 
 # Create main blueprint
 main_bp = Blueprint("main_bp", __name__)
@@ -234,4 +235,27 @@ def band():
         is_real_band=is_real_band,
         claimed_by=claimed_by,
         shareable_url=shareable_url
+    )
+
+
+@main_bp.route("/leaderboard", endpoint="leaderboard")
+def leaderboard():
+    """Display public leaderboard of top claimers"""
+    # Query users with their claim counts, ordered by count descending
+    # Only include users who have at least 1 claim
+    top_users = (
+        db.session.query(
+            User,
+            func.count(ClaimedBandName.id).label('claim_count')
+        )
+        .join(ClaimedBandName, User.id == ClaimedBandName.user_id)
+        .group_by(User.id)
+        .order_by(func.count(ClaimedBandName.id).desc())
+        .limit(50)
+        .all()
+    )
+
+    return render_template(
+        "leaderboard.html",
+        top_users=top_users
     )
