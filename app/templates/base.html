@@ -45,6 +45,90 @@
     .main-content {
         padding-top: 20px;
     }
+
+    /* Trading Card Styles */
+    .band-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .band-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+    .band-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 8px 15px;
+        color: #fff;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .band-card-body {
+        padding: 20px 15px;
+        text-align: center;
+    }
+    .band-card-name {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 10px 0;
+        line-height: 1.3;
+    }
+    .band-card-meta {
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 15px;
+    }
+    .band-card-actions {
+        padding: 0 15px 15px;
+        text-align: center;
+    }
+
+    /* Claim Button Animation */
+    .btn-claim {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: #fff;
+        padding: 12px 30px;
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 25px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+    .btn-claim:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        color: #fff;
+    }
+    .btn-claim:active {
+        transform: scale(0.98);
+    }
+    .btn-claim:disabled {
+        opacity: 0.7;
+        transform: none;
+        cursor: not-allowed;
+    }
+
+    /* Unclaim button */
+    .btn-unclaim {
+        background: transparent;
+        border: 1px solid #dc3545;
+        color: #dc3545;
+        padding: 4px 12px;
+        font-size: 12px;
+        border-radius: 15px;
+        transition: all 0.2s ease;
+    }
+    .btn-unclaim:hover {
+        background: #dc3545;
+        color: #fff;
+    }
 </style>
 {% block page_styles %}{% endblock %}
 {% endblock %}

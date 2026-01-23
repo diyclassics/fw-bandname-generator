@@ -58,18 +58,23 @@
                 {% if claimed_bands %}
                     <div class="row">
                         {% for claim in claimed_bands %}
-                            <div class="col-md-4 col-sm-6" style="margin-bottom: 20px;">
-                                <div class="panel panel-default" style="text-align: center;">
-                                    <div class="panel-body">
-                                        <h4 style="margin: 10px 0;">{{ claim.band_name }}</h4>
-                                        <small class="text-muted">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="band-card">
+                                    <div class="band-card-header">
+                                        Claimed Band
+                                    </div>
+                                    <div class="band-card-body">
+                                        <h4 class="band-card-name">{{ claim.band_name }}</h4>
+                                        <div class="band-card-meta">
                                             Claimed {{ claim.claimed_at.strftime('%b %d, %Y') }}
-                                        </small>
+                                        </div>
+                                    </div>
+                                    <div class="band-card-actions">
                                         <form action="{{ url_for('user_bp.unclaim_band', claim_id=claim.id) }}"
-                                              method="POST" style="margin-top: 10px;"
+                                              method="POST"
                                               onsubmit="return confirm('Release this band name?');">
-                                            <button type="submit" class="btn btn-xs btn-danger">
-                                                Unclaim
+                                            <button type="submit" class="btn-unclaim">
+                                                Release
                                             </button>
                                         </form>
                                     </div>

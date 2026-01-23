@@ -66,8 +66,7 @@
         text-align: center;
     }
     .claim-btn {
-        font-size: 16px;
-        padding: 10px 25px;
+        /* Uses btn-claim from base.html */
     }
     .claim-info {
         font-size: 14px;
@@ -94,7 +93,7 @@
             {% if current_user.is_authenticated %}
                 {% if not is_duplicate %}
                     {% if current_user.can_claim %}
-                        <button id="claim-btn" class="btn btn-success claim-btn" onclick="claimBand('{{ bandname }}')">
+                        <button id="claim-btn" class="btn-claim" onclick="claimBand('{{ bandname }}')">
                             Claim This Band!
                         </button>
                     {% else %}
