@@ -1,0 +1,123 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}FW Bandname Generator{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    /* Navbar styling */
+    .navbar {
+        margin-bottom: 0;
+        border-radius: 0;
+    }
+    .navbar-brand {
+        font-weight: bold;
+    }
+    .avatar-sm {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin-right: 6px;
+        vertical-align: middle;
+    }
+    .avatar-placeholder-sm {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        background: #eee;
+        border-radius: 50%;
+        margin-right: 6px;
+        line-height: 24px;
+        text-align: center;
+        font-size: 12px;
+        color: #999;
+        vertical-align: middle;
+    }
+    /* Flash message container */
+    .flash-messages {
+        margin-top: 20px;
+    }
+    .flash-messages .alert {
+        max-width: 800px;
+        margin: 10px auto;
+    }
+    /* Content padding to account for navbar */
+    .main-content {
+        padding-top: 20px;
+    }
+</style>
+{% block page_styles %}{% endblock %}
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-default navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('main_bp.index') }}">FW Bandname Generator</a>
+        </div>
+        <div class="collapse navbar-collapse" id="main-navbar">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ url_for('main_bp.leaderboard') }}">Leaderboard</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                    <li>
+                        <a href="{{ url_for('user_bp.dashboard') }}">
+                            My Claims ({{ current_user.claimed_bands.count() }}/5)
+                        </a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                            {% if current_user.avatar_url %}
+                                <img src="{{ current_user.avatar_url }}" alt="" class="avatar-sm">
+                            {% else %}
+                                <span class="avatar-placeholder-sm">{{ current_user.username[0]|upper }}</span>
+                            {% endif %}
+                            {{ current_user.display_name or current_user.username }}
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('user_bp.dashboard') }}">Dashboard</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="{{ url_for('auth_bp.logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="{{ url_for('auth_bp.login') }}">Login</a></li>
+                    <li><a href="{{ url_for('auth_bp.register') }}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="main-content">
+        {% block page_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

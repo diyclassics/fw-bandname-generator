@@ -1,131 +1,108 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 {% block title %}My Dashboard - FW Bandname Generator{% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-            <h2 style="margin-top: 50px;">My Dashboard</h2>
+{% block page_content %}
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <h2 style="margin-top: 30px;">My Dashboard</h2>
 
-            <!-- Flash messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            <!-- User Info -->
-            <div class="panel panel-default" style="margin-top: 20px;">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Account Info</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-2 text-center">
-                            {% if current_user.avatar_url %}
-                                <img src="{{ current_user.avatar_url }}" alt="Avatar"
-                                     class="img-circle" style="width: 80px; height: 80px;">
-                            {% else %}
-                                <div style="width: 80px; height: 80px; background: #eee;
-                                            border-radius: 50%; margin: 0 auto;
-                                            line-height: 80px; font-size: 36px; color: #999;">
-                                    {{ current_user.username[0]|upper }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-10">
-                            <h4>{{ current_user.display_name or current_user.username }}</h4>
-                            <p class="text-muted">@{{ current_user.username }}</p>
-                            {% if current_user.email %}
-                                <p><small>{{ current_user.email }}</small></p>
-                            {% endif %}
-                            <p>
-                                <span class="label label-info">
-                                    Member since {{ current_user.created_at.strftime('%B %Y') }}
+        <!-- User Info -->
+        <div class="panel panel-default" style="margin-top: 20px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">Account Info</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-2 text-center">
+                        {% if current_user.avatar_url %}
+                            <img src="{{ current_user.avatar_url }}" alt="Avatar"
+                                 class="img-circle" style="width: 80px; height: 80px;">
+                        {% else %}
+                            <div style="width: 80px; height: 80px; background: #eee;
+                                        border-radius: 50%; margin: 0 auto;
+                                        line-height: 80px; font-size: 36px; color: #999;">
+                                {{ current_user.username[0]|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-10">
+                        <h4>{{ current_user.display_name or current_user.username }}</h4>
+                        <p class="text-muted">@{{ current_user.username }}</p>
+                        {% if current_user.email %}
+                            <p><small>{{ current_user.email }}</small></p>
+                        {% endif %}
+                        <p>
+                            <span class="label label-info">
+                                Member since {{ current_user.created_at.strftime('%B %Y') }}
+                            </span>
+                            {% if current_user.oauth_provider %}
+                                <span class="label label-default">
+                                    {{ current_user.oauth_provider|capitalize }} account
                                 </span>
-                                {% if current_user.oauth_provider %}
-                                    <span class="label label-default">
-                                        {{ current_user.oauth_provider|capitalize }} account
-                                    </span>
-                                {% endif %}
-                            </p>
-                        </div>
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Claims Section -->
-            <div class="panel panel-primary" style="margin-top: 20px;">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        My Claimed Bands
-                        <span class="badge" style="margin-left: 10px;">{{ claim_count }}/{{ max_claims }}</span>
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    {% if claimed_bands %}
-                        <div class="row">
-                            {% for claim in claimed_bands %}
-                                <div class="col-md-4 col-sm-6" style="margin-bottom: 20px;">
-                                    <div class="panel panel-default" style="text-align: center;">
-                                        <div class="panel-body">
-                                            <h4 style="margin: 10px 0;">{{ claim.band_name }}</h4>
-                                            <small class="text-muted">
-                                                Claimed {{ claim.claimed_at.strftime('%b %d, %Y') }}
-                                            </small>
-                                            <form action="{{ url_for('user_bp.unclaim_band', claim_id=claim.id) }}"
-                                                  method="POST" style="margin-top: 10px;"
-                                                  onsubmit="return confirm('Release this band name?');">
-                                                <button type="submit" class="btn btn-xs btn-danger">
-                                                    Unclaim
-                                                </button>
-                                            </form>
-                                        </div>
+        <!-- Claims Section -->
+        <div class="panel panel-primary" style="margin-top: 20px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    My Claimed Bands
+                    <span class="badge" style="margin-left: 10px;">{{ claim_count }}/{{ max_claims }}</span>
+                </h3>
+            </div>
+            <div class="panel-body">
+                {% if claimed_bands %}
+                    <div class="row">
+                        {% for claim in claimed_bands %}
+                            <div class="col-md-4 col-sm-6" style="margin-bottom: 20px;">
+                                <div class="panel panel-default" style="text-align: center;">
+                                    <div class="panel-body">
+                                        <h4 style="margin: 10px 0;">{{ claim.band_name }}</h4>
+                                        <small class="text-muted">
+                                            Claimed {{ claim.claimed_at.strftime('%b %d, %Y') }}
+                                        </small>
+                                        <form action="{{ url_for('user_bp.unclaim_band', claim_id=claim.id) }}"
+                                              method="POST" style="margin-top: 10px;"
+                                              onsubmit="return confirm('Release this band name?');">
+                                            <button type="submit" class="btn btn-xs btn-danger">
+                                                Unclaim
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="text-center" style="padding: 40px;">
-                            <p class="text-muted" style="font-size: 18px;">
-                                You haven't claimed any band names yet.
-                            </p>
-                            <a href="{{ url_for('main_bp.index') }}" class="btn btn-primary btn-lg">
-                                Generate Some Bands!
-                            </a>
-                        </div>
-                    {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center" style="padding: 40px;">
+                        <p class="text-muted" style="font-size: 18px;">
+                            You haven't claimed any band names yet.
+                        </p>
+                        <a href="{{ url_for('main_bp.index') }}" class="btn btn-primary btn-lg">
+                            Generate Some Bands!
+                        </a>
+                    </div>
+                {% endif %}
 
-                    {% if claim_count < max_claims %}
-                        <hr>
-                        <p class="text-center">
-                            <a href="{{ url_for('main_bp.index') }}" class="btn btn-success">
-                                Generate More Bands ({{ max_claims - claim_count }} claims remaining)
-                            </a>
-                        </p>
-                    {% elif claim_count >= max_claims %}
-                        <hr>
-                        <p class="text-center text-muted">
-                            You've reached the maximum of {{ max_claims }} claims.
-                            Unclaim a band to make room for new ones!
-                        </p>
-                    {% endif %}
-                </div>
+                {% if claim_count < max_claims %}
+                    <hr>
+                    <p class="text-center">
+                        <a href="{{ url_for('main_bp.index') }}" class="btn btn-success">
+                            Generate More Bands ({{ max_claims - claim_count }} claims remaining)
+                        </a>
+                    </p>
+                {% elif claim_count >= max_claims %}
+                    <hr>
+                    <p class="text-center text-muted">
+                        You've reached the maximum of {{ max_claims }} claims.
+                        Unclaim a band to make room for new ones!
+                    </p>
+                {% endif %}
             </div>
-
-            <!-- Back link -->
-            <p class="text-center" style="margin-top: 20px;">
-                <a href="{{ url_for('main_bp.index') }}">Back to Generator</a>
-                |
-                <a href="{{ url_for('auth_bp.logout') }}">Logout</a>
-            </p>
         </div>
     </div>
 </div>

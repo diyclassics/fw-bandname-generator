@@ -1,73 +1,53 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 {% block title %}Register - FW Bandname Generator{% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            <h2 class="text-center" style="margin-top: 50px;">Create Account</h2>
+{% block page_content %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <h2 class="text-center" style="margin-top: 30px;">Create Account</h2>
 
-            <div class="panel panel-default" style="margin-top: 30px;">
-                <div class="panel-body">
-                    <!-- Flash messages -->
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
+        <div class="panel panel-default" style="margin-top: 30px;">
+            <div class="panel-body">
+                <form method="POST" action="{{ url_for('auth_bp.register') }}">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                               placeholder="Choose a username" required minlength="3" maxlength="80"
+                               value="{{ username if username else '' }}">
+                        <p class="help-block">3-80 characters</p>
+                    </div>
 
-                    <form method="POST" action="{{ url_for('auth_bp.register') }}">
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" class="form-control" id="username" name="username"
-                                   placeholder="Choose a username" required minlength="3" maxlength="80"
-                                   value="{{ username if username else '' }}">
-                            <p class="help-block">3-80 characters</p>
-                        </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="your@email.com" required
+                               value="{{ email if email else '' }}">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" name="email"
-                                   placeholder="your@email.com" required
-                                   value="{{ email if email else '' }}">
-                        </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               placeholder="Choose a password" required minlength="8">
+                        <p class="help-block">At least 8 characters</p>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" name="password"
-                                   placeholder="Choose a password" required minlength="8">
-                            <p class="help-block">At least 8 characters</p>
-                        </div>
+                    <div class="form-group">
+                        <label for="password_confirm">Confirm Password</label>
+                        <input type="password" class="form-control" id="password_confirm" name="password_confirm"
+                               placeholder="Confirm your password" required>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="password_confirm">Confirm Password</label>
-                            <input type="password" class="form-control" id="password_confirm" name="password_confirm"
-                                   placeholder="Confirm your password" required>
-                        </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Create Account
+                    </button>
+                </form>
 
-                        <button type="submit" class="btn btn-primary btn-block">
-                            Create Account
-                        </button>
-                    </form>
+                <hr>
 
-                    <hr>
-
-                    <p class="text-center">
-                        Already have an account?
-                        <a href="{{ url_for('auth_bp.login') }}">Log in</a>
-                    </p>
-
-                    <p class="text-center">
-                        <a href="{{ url_for('main_bp.index') }}">Back to Generator</a>
-                    </p>
-                </div>
+                <p class="text-center">
+                    Already have an account?
+                    <a href="{{ url_for('auth_bp.login') }}">Log in</a>
+                </p>
             </div>
         </div>
     </div>
