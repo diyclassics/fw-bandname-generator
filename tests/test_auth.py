@@ -260,26 +260,27 @@ class TestOAuthRoutes:
 class TestRegistrationDisabled:
     """Tests for registration disabled feature."""
 
-    def test_register_disabled_redirects_get(self, client, app):
-        """Test GET to register page redirects when registration is disabled."""
+    def test_register_disabled_shows_closed_page(self, client, app):
+        """Test GET to register page shows closed page when registration is disabled."""
         app.config['REGISTRATION_ENABLED'] = False
-        response = client.get('/auth/register', follow_redirects=True)
+        response = client.get('/auth/register')
 
         assert response.status_code == 200
-        assert b'Registration is currently closed' in response.data
+        assert b'Registration Closed' in response.data
+        assert b'not currently open' in response.data
 
-    def test_register_disabled_redirects_post(self, client, app):
-        """Test POST to register is rejected when registration is disabled."""
+    def test_register_disabled_post_shows_closed_page(self, client, app):
+        """Test POST to register shows closed page when registration is disabled."""
         app.config['REGISTRATION_ENABLED'] = False
         response = client.post('/auth/register', data={
             'username': 'newuser',
             'email': 'new@example.com',
             'password': 'password123',
             'password_confirm': 'password123'
-        }, follow_redirects=True)
+        })
 
         assert response.status_code == 200
-        assert b'Registration is currently closed' in response.data
+        assert b'Registration Closed' in response.data
 
         # Verify user was NOT created
         with app.app_context():

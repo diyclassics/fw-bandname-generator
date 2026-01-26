@@ -51,8 +51,7 @@ def register():
     """User registration page"""
     # Check if registration is enabled
     if not current_app.config.get('REGISTRATION_ENABLED', True):
-        flash('Registration is currently closed.', 'warning')
-        return redirect(url_for('auth_bp.login'))
+        return render_template('auth/registration_closed.html')
 
     # If user is already logged in, redirect to index
     if current_user.is_authenticated:

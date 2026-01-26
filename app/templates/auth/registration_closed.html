@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Registration Closed - FW Bandname Generator{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <h2 class="text-center" style="margin-top: 30px;">Registration Closed</h2>
+
+        <div class="panel panel-default" style="margin-top: 30px;">
+            <div class="panel-body text-center">
+                <p style="font-size: 18px; margin: 20px 0;">
+                    Registration is not currently open.
+                </p>
+                <p class="text-muted">
+                    Check back soon!
+                </p>
+
+                <hr>
+
+                <p>
+                    Already have an account?
+                    <a href="{{ url_for('auth_bp.login') }}" class="btn btn-primary">Log in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
