@@ -18,6 +18,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAX_CLAIMS_PER_USER = 5
 
+    # Registration toggle - set to "false" to disable new account creation
+    REGISTRATION_ENABLED = os.environ.get("REGISTRATION_ENABLED", "true").lower() == "true"
+
     # Session security
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"

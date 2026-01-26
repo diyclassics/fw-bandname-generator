@@ -255,3 +255,60 @@ class TestOAuthRoutes:
         client, user_id = logged_in_client
         response = client.get('/auth/oauth/github')
         assert response.status_code == 302
+
+
+class TestRegistrationDisabled:
+    """Tests for registration disabled feature."""
+
+    def test_register_disabled_redirects_get(self, client, app):
+        """Test GET to register page redirects when registration is disabled."""
+        app.config['REGISTRATION_ENABLED'] = False
+        response = client.get('/auth/register', follow_redirects=True)
+
+        assert response.status_code == 200
+        assert b'Registration is currently closed' in response.data
+
+    def test_register_disabled_redirects_post(self, client, app):
+        """Test POST to register is rejected when registration is disabled."""
+        app.config['REGISTRATION_ENABLED'] = False
+        response = client.post('/auth/register', data={
+            'username': 'newuser',
+            'email': 'new@example.com',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        }, follow_redirects=True)
+
+        assert response.status_code == 200
+        assert b'Registration is currently closed' in response.data
+
+        # Verify user was NOT created
+        with app.app_context():
+            user = User.query.filter_by(username='newuser').first()
+            assert user is None
+
+    def test_login_page_hides_register_link_when_disabled(self, client, app):
+        """Test login page hides 'Create one' link when registration is disabled."""
+        app.config['REGISTRATION_ENABLED'] = False
+        response = client.get('/auth/login')
+
+        assert response.status_code == 200
+        assert b'Create one' not in response.data
+
+    def test_login_page_shows_register_link_when_enabled(self, client, app):
+        """Test login page shows 'Create one' link when registration is enabled."""
+        app.config['REGISTRATION_ENABLED'] = True
+        response = client.get('/auth/login')
+
+        assert response.status_code == 200
+        assert b'Create one' in response.data
+
+    def test_existing_user_can_login_when_registration_disabled(self, client, app, sample_user):
+        """Test existing users can still log in when registration is disabled."""
+        app.config['REGISTRATION_ENABLED'] = False
+        response = client.post('/auth/login', data={
+            'email': 'test@example.com',
+            'password': 'password123'
+        }, follow_redirects=True)
+
+        assert response.status_code == 200
+        assert b'Welcome back' in response.data

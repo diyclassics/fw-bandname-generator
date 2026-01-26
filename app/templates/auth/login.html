@@ -47,12 +47,14 @@
                     </a>
                 </div>
 
+                {% if config.REGISTRATION_ENABLED %}
                 <hr>
 
                 <p class="text-center">
                     Don't have an account?
                     <a href="{{ url_for('auth_bp.register') }}">Create one</a>
                 </p>
+                {% endif %}
             </div>
         </div>
     </div>

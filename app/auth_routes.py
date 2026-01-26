@@ -49,6 +49,11 @@ def login():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     """User registration page"""
+    # Check if registration is enabled
+    if not current_app.config.get('REGISTRATION_ENABLED', True):
+        flash('Registration is currently closed.', 'warning')
+        return redirect(url_for('auth_bp.login'))
+
     # If user is already logged in, redirect to index
     if current_user.is_authenticated:
         return redirect(url_for('main_bp.index'))
@@ -177,6 +182,11 @@ def oauth_google_callback():
             if picture and not user.avatar_url:
                 user.avatar_url = picture
         else:
+            # Check if registration is enabled before creating new user
+            if not current_app.config.get('REGISTRATION_ENABLED', True):
+                flash('Registration is currently closed. Only existing users can log in.', 'warning')
+                return redirect(url_for('auth_bp.login'))
+
             # Create new user
             # Generate unique username from email
             base_username = email.split('@')[0]
@@ -277,6 +287,11 @@ def oauth_github_callback():
             if avatar and not user.avatar_url:
                 user.avatar_url = avatar
         else:
+            # Check if registration is enabled before creating new user
+            if not current_app.config.get('REGISTRATION_ENABLED', True):
+                flash('Registration is currently closed. Only existing users can log in.', 'warning')
+                return redirect(url_for('auth_bp.login'))
+
             # Create new user
             # Try to use GitHub username, or generate unique one
             username = username_from_github
