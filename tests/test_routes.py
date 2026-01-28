@@ -144,6 +144,58 @@ class TestLeaderboardRoute:
         assert top_pos < bottom_pos
 
 
+class TestGalleryRoute:
+    """Tests for the gallery route."""
+
+    def test_gallery_loads(self, client, app):
+        """Test gallery page loads."""
+        response = client.get('/gallery')
+        assert response.status_code == 200
+        assert b'Gallery' in response.data
+
+    def test_gallery_empty(self, client, app):
+        """Test gallery with no claims."""
+        response = client.get('/gallery')
+        assert response.status_code == 200
+        assert b'No bands have been claimed' in response.data
+
+    def test_gallery_shows_claimed_bands(self, client, app, sample_user_with_claims):
+        """Test gallery displays claimed band names."""
+        user_id, claim_ids = sample_user_with_claims
+
+        response = client.get('/gallery')
+        assert response.status_code == 200
+        assert b'Wandering Echoes' in response.data
+        assert b'testuser' in response.data
+
+    def test_gallery_pagination(self, client, app):
+        """Test gallery pagination works."""
+        with app.app_context():
+            # Create user with 30 claims (more than per_page of 24)
+            user = User(username='galleryuser', email='gallery@example.com')
+            user.set_password('password123')
+            db.session.add(user)
+            db.session.commit()
+
+            for i in range(30):
+                claim = ClaimedBandName(
+                    user_id=user.id,
+                    band_name=f'Gallery Band {i}',
+                    band_name_lower=f'gallery band {i}'
+                )
+                db.session.add(claim)
+            db.session.commit()
+
+        # First page
+        response = client.get('/gallery')
+        assert response.status_code == 200
+        assert b'page=2' in response.data  # Should have link to page 2
+
+        # Second page
+        response = client.get('/gallery?page=2')
+        assert response.status_code == 200
+
+
 class TestBandNameGeneration:
     """Tests for band name generation helper functions."""
 

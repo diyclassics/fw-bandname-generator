@@ -259,3 +259,23 @@ def leaderboard():
         "leaderboard.html",
         top_users=top_users
     )
+
+
+@main_bp.route("/gallery", endpoint="gallery")
+def gallery():
+    """Display public gallery of all claimed band names"""
+    page = request.args.get('page', 1, type=int)
+    per_page = 24  # 6 columns x 4 rows
+
+    # Query all claims with user info, newest first
+    pagination = (
+        ClaimedBandName.query
+        .order_by(ClaimedBandName.claimed_at.desc())
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+
+    return render_template(
+        "gallery.html",
+        claims=pagination.items,
+        pagination=pagination
+    )

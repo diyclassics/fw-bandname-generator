@@ -19,6 +19,7 @@ Written by Patrick J. Burns, 2.1.19, updated 1.21.26.
 - **Minimalist UI**: Clean design with refresh icon and subtle interactions
 - **User accounts**: Email/password and OAuth (Google, GitHub) authentication
 - **Band name claims**: Claim up to 5 generated band names as "trading cards"
+- **Public gallery**: Browse all claimed band names with pagination
 - **Public leaderboard**: See top collectors ranked by claim count
 
 ## Installation
@@ -38,10 +39,54 @@ pip install -r requirements.txt  # if using traditional pip
 Run the Flask development server:
 
 ```bash
-uv run python app.py
+uv run flask run --port 5001
 ```
 
 Visit http://127.0.0.1:5001/ in your browser. Click the refresh icon to generate new band names, or use the shareable link to save and share specific names.
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root (see `.env.example`):
+
+```bash
+# Required
+SECRET_KEY=your-secret-key-here
+FLASK_ENV=development
+
+# Database (optional for dev - defaults to SQLite)
+DATABASE_URL=sqlite:///instance/app.db
+
+# OAuth (optional - enables social login)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+
+# Registration toggle (optional - defaults to true)
+REGISTRATION_ENABLED=true
+```
+
+### OAuth Setup (Optional)
+
+To enable Google and GitHub login:
+
+**Google OAuth:**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Navigate to APIs & Services > Credentials
+4. Create OAuth 2.0 Client ID (Web application)
+5. Add authorized redirect URI: `http://localhost:5001/auth/oauth/google/callback`
+6. Copy Client ID and Secret to `.env`
+
+**GitHub OAuth:**
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Create a new OAuth App
+3. Set Authorization callback URL: `http://localhost:5001/auth/oauth/github/callback`
+4. Copy Client ID and Secret to `.env`
+
+For production, update redirect URIs to your domain (e.g., `https://yourdomain.com/auth/oauth/google/callback`).
 
 ## How It Works
 
@@ -78,14 +123,25 @@ After extraction, names receive capitalization based on real band distributions:
 ```
 fw-bandname-generator/
 ├── app/
-│   ├── __init__.py          # Flask app initialization
-│   ├── routes.py            # Main application logic & patterns
+│   ├── __init__.py          # Flask app factory
+│   ├── routes.py            # Main routes (generator, leaderboard, gallery)
+│   ├── auth_routes.py       # Authentication routes (login, register, OAuth)
+│   ├── user_routes.py       # User routes (dashboard, claims)
+│   ├── models.py            # Database models (User, ClaimedBandName)
 │   └── templates/
-│       └── index.html       # Bootstrap-based UI
+│       ├── base.html        # Base template with navbar
+│       ├── index.html       # Band name generator
+│       ├── leaderboard.html # Public leaderboard
+│       ├── gallery.html     # Public gallery of claims
+│       ├── auth/            # Login, register templates
+│       └── user/            # Dashboard template
 ├── static/
 │   ├── data/
-│   │   └── bands.txt        # 71,105 existing band names
+│   │   └── bands.txt        # 170,000+ band names
 │   └── texts/               # 626 Finnegans Wake text files
+├── migrations/              # Alembic database migrations
+├── tests/                   # Pytest test suite
+├── config.py                # Environment configuration
 ├── app.py                   # Application entry point
 └── pyproject.toml          # Project metadata & dependencies
 ```
@@ -142,6 +198,13 @@ fw-bandname-generator/
 - Testing: All tests passing with mocked HTTP responses
 
 ## Version History
+
+### v0.5.0 (2026-01-28)
+- Added public gallery page showing all claimed band names
+- Added pagination for gallery (24 items per page)
+- Added OAuth setup documentation to README
+- Added Gallery link to navbar
+- Deployed to production at https://fwbng.exploratoryphilology.org
 
 ### v0.4.0 (2026-01-21)
 - Added user authentication (email/password + Google/GitHub OAuth)
