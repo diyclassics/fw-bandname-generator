@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -64,6 +64,16 @@ def create_app(config_name=None):
 
     # Note: Database tables are created via migrations (flask db upgrade)
     # Not using db.create_all() to ensure migrations are the single source of truth
+
+    # Custom error handlers
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        db.session.rollback()
+        return render_template('errors/500.html'), 500
 
     return app
 

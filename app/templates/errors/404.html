@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found - FW Bandname Generator{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3 text-center" style="margin-top: 80px;">
+        <h1 style="font-size: 120px; color: #ddd; margin-bottom: 0;">404</h1>
+        <h2>Page Not Found</h2>
+        <p class="text-muted" style="margin: 20px 0 30px;">
+            The page you're looking for doesn't exist or has been moved.
+        </p>
+        <a href="{{ url_for('main_bp.index') }}" class="btn btn-primary btn-lg">
+            Generate a Band Name
+        </a>
+    </div>
+</div>
+{% endblock %}

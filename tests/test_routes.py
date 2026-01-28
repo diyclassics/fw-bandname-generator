@@ -196,6 +196,23 @@ class TestGalleryRoute:
         assert response.status_code == 200
 
 
+class TestErrorPages:
+    """Tests for custom error pages."""
+
+    def test_404_page(self, client, app):
+        """Test custom 404 page displays."""
+        response = client.get('/nonexistent-page')
+        assert response.status_code == 404
+        assert b'Page Not Found' in response.data
+        assert b'Generate a Band Name' in response.data
+
+    def test_404_includes_navbar(self, client, app):
+        """Test 404 page extends base template with navbar."""
+        response = client.get('/nonexistent-page')
+        assert response.status_code == 404
+        assert b'FW Bandname Generator' in response.data  # Navbar brand
+
+
 class TestBandNameGeneration:
     """Tests for band name generation helper functions."""
 
