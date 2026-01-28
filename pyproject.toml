@@ -1,6 +1,6 @@
 [project]
 name = "fw-bandname-generator"
-version = "0.2.0"
+version = "0.5.0"
 description = "Flask app that uses regex patterns on Joyce's Finnegans Wake to generate bandnames"
 readme = "README.md"
 authors = [

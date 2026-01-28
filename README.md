@@ -2,7 +2,7 @@
 
 A Flask web application that generates band names by extracting patterns from James Joyce's *Finnegans Wake*.
 
-Written by Patrick J. Burns, 2.1.19, updated 1.21.26.
+Written by Patrick J. Burns, 2.1.19, updated 1.28.26.
 
 ## Features
 
@@ -242,4 +242,4 @@ Code: See LICENSE file
 
 ## Credits
 
-Written by Patrick J. Burns (v0.2.0-0.4.0 with Claude 4.5). Built with Flask, powered by Joyce's linguistic brilliance.
+Written by Patrick J. Burns (v0.2.0-0.5.0 with Claude Opus 4.5). Built with Flask, powered by Joyce's linguistic brilliance.
