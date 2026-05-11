@@ -209,6 +209,40 @@ class TestLogin:
         assert response.status_code == 200
         assert b'Welcome back' in response.data
 
+    def test_login_honors_safe_relative_next(self, client, app, sample_user):
+        """A relative ?next= path is a safe redirect target."""
+        response = client.post(
+            '/auth/login?next=/user/dashboard',
+            data={'email': 'test@example.com', 'password': 'password123'},
+        )
+
+        assert response.status_code == 302
+        assert response.headers['Location'].endswith('/user/dashboard')
+
+    def test_login_rejects_external_next_url(self, client, app, sample_user):
+        """An absolute ?next= URL pointing off-host must not be honored."""
+        response = client.post(
+            '/auth/login?next=https://evil.example.com/phish',
+            data={'email': 'test@example.com', 'password': 'password123'},
+        )
+
+        assert response.status_code == 302
+        location = response.headers['Location']
+        assert 'evil.example.com' not in location
+        assert location.endswith('/')  # Falls back to main_bp.index
+
+    def test_login_rejects_protocol_relative_next(self, client, app, sample_user):
+        """A protocol-relative //evil.com/... ?next= must not be honored."""
+        response = client.post(
+            '/auth/login?next=//evil.example.com/phish',
+            data={'email': 'test@example.com', 'password': 'password123'},
+        )
+
+        assert response.status_code == 302
+        location = response.headers['Location']
+        assert 'evil.example.com' not in location
+        assert location.endswith('/')
+
 
 class TestLogout:
     """Tests for user logout."""

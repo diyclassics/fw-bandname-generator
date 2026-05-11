@@ -1,4 +1,5 @@
 from datetime import datetime
+from urllib.parse import urljoin, urlparse
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
@@ -8,6 +9,18 @@ from app.auth import oauth
 
 # Create auth blueprint
 auth_bp = Blueprint('auth_bp', __name__, url_prefix='/auth')
+
+
+def _is_safe_redirect_target(target):
+    # Resolve target against the current host so relative paths, absolute URLs,
+    # and protocol-relative `//host` forms all yield a fully-qualified URL we
+    # can compare host-to-host. Anything that isn't http(s) on the same netloc
+    # is treated as off-site and rejected to prevent open-redirect phishing.
+    if not target:
+        return False
+    host = urlparse(request.host_url)
+    candidate = urlparse(urljoin(request.host_url, target))
+    return candidate.scheme in ('http', 'https') and candidate.netloc == host.netloc
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -39,7 +52,7 @@ def login():
 
         # Redirect to next page or index
         next_page = request.args.get('next')
-        if next_page:
+        if next_page and _is_safe_redirect_target(next_page):
             return redirect(next_page)
         return redirect(url_for('main_bp.index'))
 
