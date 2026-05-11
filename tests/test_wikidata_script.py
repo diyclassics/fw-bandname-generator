@@ -17,14 +17,23 @@ class TestFetchBandsFromWikidata:
     """Test suite for fetch_bands_from_wikidata function"""
 
     def test_successful_query_returns_band_names(self):
-        """Test that successful API response returns list of band names (lowercase normalized)"""
+        """Test that a successful API response returns a {qid: label} dict"""
         mock_response = Mock()
         mock_response.json.return_value = {
             'results': {
                 'bindings': [
-                    {'itemLabel': {'value': 'The Beatles'}},
-                    {'itemLabel': {'value': 'Pink Floyd'}},
-                    {'itemLabel': {'value': 'Led Zeppelin'}},
+                    {
+                        'item': {'value': 'http://www.wikidata.org/entity/Q1299'},
+                        'itemLabel': {'value': 'The Beatles'},
+                    },
+                    {
+                        'item': {'value': 'http://www.wikidata.org/entity/Q2306'},
+                        'itemLabel': {'value': 'Pink Floyd'},
+                    },
+                    {
+                        'item': {'value': 'http://www.wikidata.org/entity/Q2127'},
+                        'itemLabel': {'value': 'Led Zeppelin'},
+                    },
                 ]
             }
         }
@@ -38,21 +47,28 @@ class TestFetchBandsFromWikidata:
             call_args = mock_get.call_args
             assert call_args[0][0] == WIKIDATA_SPARQL_ENDPOINT
 
-            # Verify results (normalized to lowercase for deduplication)
-            assert len(bands) == 3
-            assert 'the beatles' in bands
-            assert 'pink floyd' in bands
-            assert 'led zeppelin' in bands
+            # Verify results: dict keyed by Q-ID, labels preserved as-is
+            assert bands == {
+                'Q1299': 'The Beatles',
+                'Q2306': 'Pink Floyd',
+                'Q2127': 'Led Zeppelin',
+            }
 
     def test_handles_missing_labels(self):
-        """Test that entries without itemLabel are skipped"""
+        """Test that entries missing either the item URI or itemLabel are skipped"""
         mock_response = Mock()
         mock_response.json.return_value = {
             'results': {
                 'bindings': [
-                    {'itemLabel': {'value': 'Radiohead'}},
+                    {
+                        'item': {'value': 'http://www.wikidata.org/entity/Q7325'},
+                        'itemLabel': {'value': 'Radiohead'},
+                    },
                     {'item': {'value': 'http://www.wikidata.org/entity/Q12345'}},  # No label
-                    {'itemLabel': {'value': 'Nirvana'}},
+                    {
+                        'item': {'value': 'http://www.wikidata.org/entity/Q11365'},
+                        'itemLabel': {'value': 'Nirvana'},
+                    },
                 ]
             }
         }
@@ -61,12 +77,10 @@ class TestFetchBandsFromWikidata:
         with patch('requests.get', return_value=mock_response):
             bands = fetch_bands_from_wikidata()
 
-            assert len(bands) == 2
-            assert 'radiohead' in bands
-            assert 'nirvana' in bands
+            assert bands == {'Q7325': 'Radiohead', 'Q11365': 'Nirvana'}
 
     def test_handles_empty_results(self):
-        """Test that empty results return empty list"""
+        """Test that empty results return an empty dict"""
         mock_response = Mock()
         mock_response.json.return_value = {
             'results': {
@@ -78,7 +92,7 @@ class TestFetchBandsFromWikidata:
         with patch('requests.get', return_value=mock_response):
             bands = fetch_bands_from_wikidata()
 
-            assert bands == []
+            assert bands == {}
 
     def test_request_has_correct_headers(self):
         """Test that request includes proper User-Agent and Accept headers"""
@@ -131,17 +145,27 @@ class TestFetchBandsFromWikidata:
         with patch('requests.get', return_value=mock_response):
             bands = fetch_bands_from_wikidata()
 
-            # Should return empty list when structure is missing
-            assert bands == []
+            # Should return an empty dict when structure is missing
+            assert bands == {}
 
-    def test_filters_q_identifiers(self):
-        """Test that Q-identifiers (when label is missing) are still included (lowercase normalized)"""
+    def test_includes_entries_whose_label_looks_like_a_q_identifier(self):
+        """Test that entries are not filtered out just because the label looks like a Q-ID
+
+        Wikidata sometimes returns a Q-identifier as the label when no English
+        label is available. Those entries should still be kept (the qid key is
+        what matters for downstream merging)."""
         mock_response = Mock()
         mock_response.json.return_value = {
             'results': {
                 'bindings': [
-                    {'itemLabel': {'value': 'Q158641'}},  # Q-identifier as label
-                    {'itemLabel': {'value': 'Destroyer'}},
+                    {
+                        'item': {'value': 'http://www.wikidata.org/entity/Q158641'},
+                        'itemLabel': {'value': 'Q158641'},  # Q-identifier as label
+                    },
+                    {
+                        'item': {'value': 'http://www.wikidata.org/entity/Q1183633'},
+                        'itemLabel': {'value': 'Destroyer'},
+                    },
                 ]
             }
         }
@@ -150,8 +174,7 @@ class TestFetchBandsFromWikidata:
         with patch('requests.get', return_value=mock_response):
             bands = fetch_bands_from_wikidata()
 
-            # Current implementation includes Q-identifiers (normalized to lowercase)
-            # This matches the actual output we saw in testing
-            assert len(bands) == 2
-            assert 'q158641' in bands
-            assert 'destroyer' in bands
+            assert bands == {
+                'Q158641': 'Q158641',
+                'Q1183633': 'Destroyer',
+            }
