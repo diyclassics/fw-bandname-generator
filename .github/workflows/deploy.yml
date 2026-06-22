@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to droplet
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2  # v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
@@ -19,3 +19,4 @@ jobs:
             git pull origin main
             uv sync
             sudo systemctl restart fwbng
+            curl -sf https://fwbng.exploratoryphilology.org > /dev/null || exit 1
