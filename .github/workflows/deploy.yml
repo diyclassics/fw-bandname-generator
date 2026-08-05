@@ -19,4 +19,9 @@ jobs:
             git pull origin main
             uv sync
             sudo systemctl restart fwbng
-            curl -sf https://fwbng.exploratoryphilology.org > /dev/null || exit 1
+            for i in $(seq 1 10); do
+              curl -sf https://fwbng.exploratoryphilology.org > /dev/null && exit 0
+              sleep 2
+            done
+            echo "Health check failed after restart" >&2
+            exit 1
